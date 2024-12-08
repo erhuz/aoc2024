@@ -29,11 +29,16 @@ func main() {
 	}
 
 	rowDelimiter := []byte("\n")
-	valueDelimiter := []byte("   ")
 
 	rows := bytes.Split(content, rowDelimiter)
 	rows = rows[:len(rows)-1]
 
+	partOne(rows)
+	partTwo(rows)
+}
+
+func partOne(rows [][]byte) {
+	valueDelimiter := []byte("   ")
 	leftList := []int{}
 	rightList := []int{}
 
@@ -57,11 +62,44 @@ func main() {
 	for index := 0; index < len(rows); index++ {
 		if leftList[index] > rightList[index] {
 			diff += leftList[index] - rightList[index]
-			fmt.Println(diff)
 		} else {
 			diff += rightList[index] - leftList[index]
-			fmt.Println(diff)
 		}
 	}
 	fmt.Println(diff)
+}
+
+func partTwo(rows [][]byte) {
+	valueDelimiter := []byte("   ")
+	leftList := []int{}
+	rightListValueByCount := make(map[int]int)
+
+	for index := 0; index < len(rows); index++ {
+		values := bytes.Split(rows[index], valueDelimiter)
+
+		value1, err := strconv.Atoi(string(values[0]))
+		value2, err := strconv.Atoi(string(values[1]))
+		if err != nil {
+			fmt.Println("Couldn't convert int")
+		}
+
+		_, ok := rightListValueByCount[value2]
+		if !ok {
+			rightListValueByCount[value2] = 0
+		}
+
+		rightListValueByCount[value2] += 1
+
+		leftList = append(leftList, value1)
+	}
+
+	similarityScore := 0
+	for index := 0; index < len(leftList); index++ {
+
+		val, ok := rightListValueByCount[leftList[index]]
+		if ok {
+			similarityScore += leftList[index] * val
+		}
+	}
+	fmt.Println(similarityScore)
 }
